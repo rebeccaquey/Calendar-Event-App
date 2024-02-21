@@ -33,14 +33,16 @@ const generateEvents = (num) => {
     const eventDate = faker.date.between('2024-03-01', '2024-04-30');
     const randomEventLength = eventLength[random(eventLength)];
     const eventStartTime = eventStartOptions[random(eventStartOptions)];
+    const eventCreationTime = faker.date.between('2024-01-01', '2024-02-20');
     const event = {
       event_name: faker.lorem.words(),
       event_description: faker.lorem.sentences(),
       event_start: (eventDate, eventStartTime * 100),
       event_end: (eventDate, (eventStartTime + randomEventLength) * 100),
       event_location: faker.location.streetAddress(),
-      creation_time: faker.date.between('2024-01-01', '2024-02-20'),
-      event_owner: faker.number.int({min: 1, max: 10})
+      event_owner: faker.number.int({min: 1, max: 10}),
+      creation_time: eventCreationTime,
+      last_edited: eventCreationTime
     }
     data.push(event);
   }
