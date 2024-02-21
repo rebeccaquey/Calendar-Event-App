@@ -18,7 +18,8 @@ CREATE TABLE events (
   event_description VARCHAR(1000),
   event_start TIMESTAMP,
   event_end TIMESTAMP,
-  creationtime VARCHAR(50),
+  event_location VARCHAR(1000),
+  creation_time VARCHAR(50),
   event_owner INT NOT NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (event_owner) REFERENCES users(id)
