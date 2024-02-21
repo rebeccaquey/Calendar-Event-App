@@ -1,4 +1,4 @@
-const faker = require('faker');
+const { faker } = require('@faker-js/faker');
 const ObjectsToCsv = require('objects-to-csv');
 
 //generate 10 users:
@@ -30,12 +30,12 @@ const random = (arr) => Math.floor(Math.random() * arr.length);
 const generateEvents = (num) => {
   const data = [];
   for (let i = 0; i < num; i++) {
-    const eventDate = faker.date.between('2024-03-01', '2024-04-30');
+    const eventDate = faker.date.between({from: '2024-03-01', to: '2024-04-30'});
     const randomEventLength = eventLength[random(eventLength)];
     const eventStartTime = eventStartOptions[random(eventStartOptions)];
-    const eventCreationTime = faker.date.between('2024-01-01', '2024-02-20');
+    const eventCreationTime = faker.date.between({from: '2024-01-01', to: '2024-02-20'});
     const event = {
-      event_name: faker.lorem.words(),
+      event_name: faker.lorem.words({min: 3, max: 8}),
       event_description: faker.lorem.sentences(),
       event_start: (eventDate, eventStartTime * 100),
       event_end: (eventDate, (eventStartTime + randomEventLength) * 100),
