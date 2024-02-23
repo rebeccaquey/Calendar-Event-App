@@ -17,11 +17,11 @@ CREATE TABLE events (
   event_name VARCHAR(1000),
   event_description VARCHAR(1000),
   event_start TIMESTAMP,
-  event_end TIMESTAMP,
+  event_length INT NOT NULL,
   event_location VARCHAR(1000),
   event_owner INT NOT NULL,
   creation_time VARCHAR(50),
-  last_edited VARCHAR(50)
+  last_edited VARCHAR(50),
   PRIMARY KEY (id),
   FOREIGN KEY (event_owner) REFERENCES users(id)
 );
@@ -30,7 +30,7 @@ CREATE TABLE invites (
   id INT NOT NULL AUTO_INCREMENT,
   user_id INT NOT NULL,
   event_id INT NOT NULL,
-  response ENUM("Yes", "No", "Maybe"),
+  response ENUM("Yes", "No", "Maybe", "Awaiting"),
   PRIMARY KEY (id),
   FOREIGN KEY (user_id) REFERENCES users(id),
   FOREIGN KEY (event_id) REFERENCES events(id)
