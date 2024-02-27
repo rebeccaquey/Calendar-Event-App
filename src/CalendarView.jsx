@@ -27,6 +27,7 @@ const CalendarView = (props) => {
       initialView='dayGridMonth'
       weekends={true}
       events={events}
+      eventClick={props.openEditEvent}
     />
   </div>
   )
