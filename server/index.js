@@ -50,7 +50,7 @@ app.get('/events/:eventId', (req, res) => {
 });
 
 //create route for an event:
-app.post('/events/:eventId', (req, res) => {
+app.post('/events', (req, res) => {
   const result = [];
   req.body.forEach((ele) => {
     const creationTime = moment(ele.creation_time).format('lll');
@@ -108,8 +108,8 @@ app.patch('/events/:eventId', (req, res) => {
 
 
 //read route for invites to an event:
-app.get('/invites/:eventId', (req, res) => {
-  database.query(`select * from invites where event_id = ${req.params.eventId}`, (err, results) => {
+app.get('/invites/events/:eventId', (req, res) => {
+  database.query(`select * from events inner join invites on invites.event_id = events.id inner join users on users.id = invites.user_id where invites.event_id = ${req.params.eventId}`, (err, results) => {
     if (err) {
       res.status(404).send(err);
     } else {
@@ -119,8 +119,10 @@ app.get('/invites/:eventId', (req, res) => {
 });
 
 //read route for invites for a user
-app.get('/invites/:userId', (req, res) => {
-  database.query(`select * from invites where user_id = ${req.params.userId}`, (err, results) => {
+app.get('/invites/events/users/:userId', (req, res) => {
+  console.log(req.params.userId);
+  database.query(`select * from events inner join invites on invites.event_id = events.id inner join users on users.id = invites.user_id where invites.user_id = ${req.params.userId}`, (err, results) => {
+    console.log('getting invites for userId:', req.params.userId);
     if (err) {
       res.status(404).send(err);
     } else {
