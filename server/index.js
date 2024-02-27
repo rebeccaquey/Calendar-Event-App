@@ -57,6 +57,7 @@ app.post('/events', (req, res) => {
     const lastEdited = moment(ele.last_edited).format('lll');
     result.push(
       [
+        ele.event_id,
         ele.event_name,
         ele.event_description,
         ele.event_start,
@@ -69,7 +70,7 @@ app.post('/events', (req, res) => {
     )
   })
 
-  const postQuery = `insert into events (event_name, event_description, event_start, event_length, event_location, creation_time, event_owner) values ?`;
+  const postQuery = `insert into events (id, event_name, event_description, event_start, event_length, event_location, event_owner, creation_time, last_edited) values ?`;
 
   database.query(postQuery, [result], (err, results) => {
     if (err) {
@@ -107,6 +108,17 @@ app.patch('/events/:eventId', (req, res) => {
 });
 
 
+//read route for all invites:
+app.get('/invites', (req, res) => {
+  database.query(`select * from invites`, (err, results) => {
+    if (err) {
+      res.status(404).send(err);
+    } else {
+      res.status(200).send(results);
+    }
+  });
+});
+
 //read route for invites to an event:
 app.get('/invites/events/:eventId', (req, res) => {
   database.query(`select * from events inner join invites on invites.event_id = events.id inner join users on users.id = invites.user_id where invites.event_id = ${req.params.eventId}`, (err, results) => {
@@ -122,7 +134,6 @@ app.get('/invites/events/:eventId', (req, res) => {
 app.get('/invites/events/users/:userId', (req, res) => {
   console.log(req.params.userId);
   database.query(`select * from events inner join invites on invites.event_id = events.id inner join users on users.id = invites.user_id where invites.user_id = ${req.params.userId}`, (err, results) => {
-    console.log('getting invites for userId:', req.params.userId);
     if (err) {
       res.status(404).send(err);
     } else {
@@ -133,9 +144,21 @@ app.get('/invites/events/users/:userId', (req, res) => {
 
 //creates invites for an event -- all responses should initially be Awaiting (except the event creator...)
 app.post('/invites', (req, res) => {
-  const postQuery = `insert into invites (user_id, event_id, response) values (${req.body.user_id}, ${req.body.event_id}, 'Awaiting')`;
+  const result = [];
+  req.body.forEach((ele) => {
+    result.push(
+      [
+        ele.invite_id,
+        ele.user_id,
+        ele.event_id,
+        'Awaiting'
+      ]
+    )
+  })
 
-  database.query(postQuery, (err, results) => {
+  const postQuery = `insert into invites (id, user_id, event_id, response) values ?`;
+
+  database.query(postQuery, [result], (err, results) => {
     if (err) {
       console.log('err', err);
       res.status(400).send(err);
@@ -193,7 +216,7 @@ app.patch('/invites/:eventId', (req, res) => {
 
 //updates invite for individual event for individual user
 app.patch('/invites/:userId/:eventId', (req, res) => {
-  // console.log(req.body, req.params.eventId)
+  console.log('patch', req.body, req.params.eventId)
 
   database.query(`update invites set response = '${req.body.response}' where user_id = ${req.params.userId} and event_id = ${req.params.eventId}`, (err, results) => {
     if (err) {
