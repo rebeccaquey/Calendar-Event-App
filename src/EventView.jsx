@@ -41,13 +41,13 @@ const EventView = (props) => {
       weekends={true}
       events={events}
       eventContent={renderEventContent}
+      eventClick={props.openEditForm}
     />
   </div>
   )
 }
 
 function renderEventContent(eventInfo) {
-  // console.log(eventInfo.event.extendedProps);
   return (
     <>
       {eventInfo.timeText}
