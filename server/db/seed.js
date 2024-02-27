@@ -78,9 +78,9 @@ const generateInvites = (num) => {
 const allInvites = generateInvites(60);
 
 
-// new ObjectsToCsv(allUsers).toDisk('./abodeUserData.csv');
-// new ObjectsToCsv(allEvents).toDisk('./abodeEventData.csv');
-// new ObjectsToCsv(allInvites).toDisk('./abodeInviteData.csv');
+new ObjectsToCsv(allUsers).toDisk('./abodeUserData.csv');
+new ObjectsToCsv(allEvents).toDisk('./abodeEventData.csv');
+new ObjectsToCsv(allInvites).toDisk('./abodeInviteData.csv');
 
 //load data from csv files into tables
 const userQuery = "load data local infile './abodeUserData.csv' into table users fields terminated by ',' lines terminated by '\n' ignore 1 lines";
