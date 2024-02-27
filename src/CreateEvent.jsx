@@ -20,6 +20,7 @@ import {
   useDisclosure
 } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
+import CreateEventInviteesInfo from './CreateEventInviteesInfo';
 
 const CreateEvent = (props) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -30,6 +31,7 @@ const CreateEvent = (props) => {
   const [eventDateAndTime, setEventDateAndTime] = useState('');
   const [eventLength, setEventLength] = useState(30);
   const [eventInvitees, setEventInvitees] = useState('');
+  const [eventInviteeIds, setEventInviteeIds] = useState([]);
 
   const handleChanges = (e) => {
     let currentPlaceholder = e.target.placeholder;
@@ -42,8 +44,6 @@ const CreateEvent = (props) => {
       setEventDescription(currentVal);
     } else if (currentPlaceholder === 'Location') {
       setEventLocation(currentVal);
-    } else if (currentPlaceholder === 'Invitees') {
-      setEventInvitees(currentVal);
     }
   }
 
@@ -51,16 +51,35 @@ const CreateEvent = (props) => {
     setEventLength(Number(length));
   }
 
+  const handleUserClick = (userId, fullName, e) => {
+    let currentInvitees = eventInvitees;
+    let currentInviteeIds = eventInviteeIds;
+
+    //check if the name is already included; if it is, remove; otherwise, add
+    if (currentInviteeIds.includes(userId)) {
+      currentInvitees = eventInvitees.replace(fullName, '');
+      currentInviteeIds = currentInviteeIds.filter(id => id !== userId);
+    } else {
+      currentInvitees += `${e.target.textContent}`
+      currentInviteeIds.push(userId);
+    }
+
+    setEventInvitees(currentInvitees);
+    setEventInviteeIds(currentInviteeIds);
+  }
+
   const handleSubmit = () => {
-    props.handleAddEvent(eventName, eventDescription, eventLocation, eventDateAndTime, eventLength, eventInvitees);
+    props.handleAddEvent(eventName, eventDescription, eventLocation, eventDateAndTime, eventLength, eventInvitees, eventInviteeIds);
     setEventName('(No title)');
     setEventDescription('');
     setEventLocation('');
     setEventDateAndTime('');
     setEventLength(30);
-    setEventInvitees('');
+    setEventInvitees([]);
+    setEventInviteeIds([]);
     onClose();
   }
+
   return (
   <div>
     <Button variant="outline" colorScheme="green" onClick={onOpen}>
@@ -104,10 +123,11 @@ const CreateEvent = (props) => {
                 placeholder='Description' 
                 onChange={handleChanges}
               />
-              <FormLabel>Invitees: {props.inviteeValue}</FormLabel>
-              <Input 
-                placeholder='Invitees'
-                onChange={handleChanges}
+              <CreateEventInviteesInfo
+                userData={props.userData}
+                currentUser={props.currentUser}
+                handleUserClick={handleUserClick}
+                eventInvitees={eventInvitees}
               />
             </FormControl>
           </ModalBody>
