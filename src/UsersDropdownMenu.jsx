@@ -23,10 +23,6 @@ const UsersDropdownMenu = (props) => {
                 user= {user}
                 key={i}
                 handleSwitchUser = {props.handleSwitchUser}
-                getUserInvites={props.getUserInvites}
-                inviteData={props.inviteData}
-                eventData={props.eventData}
-                currentUser={props.currentUser}
               />
             )
           }
