@@ -108,6 +108,12 @@ const EditEvent = (props) => {
     setIsEventInviteesLoaded(false);
   }
 
+  const handleDelete = () => {
+    props.handleDeleteAllEventInvites(props.editedEvent.id);
+    props.closeEditEvent();
+    setIsEventInviteesLoaded(false);
+  }
+
   const handleClose = () => {
     props.setUpdatedInviteeInfo(props.originalInviteeInfo);
     props.setInviteesEdited(false);
@@ -205,6 +211,13 @@ const EditEvent = (props) => {
             onClick={handleSubmit}
           >
             Update
+          </Button>
+          <Button
+            colorScheme='green'
+            type='submit'
+            onClick={handleDelete}
+          >
+            Delete
           </Button>
         </ModalFooter>
       </ModalContent>
