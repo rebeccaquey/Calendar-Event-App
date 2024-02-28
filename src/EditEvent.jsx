@@ -206,6 +206,7 @@ const EditEvent = (props) => {
         </ModalBody>
         <ModalFooter>
           <Button
+            className='update-button'
             colorScheme='green'
             type='submit'
             onClick={handleSubmit}
@@ -213,6 +214,7 @@ const EditEvent = (props) => {
             Update
           </Button>
           <Button
+            className='delete-button'
             colorScheme='green'
             type='submit'
             onClick={handleDelete}
