@@ -82,7 +82,7 @@ const CreateEvent = (props) => {
 
   return (
   <div>
-    <Button variant="outline" colorScheme="green" onClick={onOpen}>
+    <Button className='create-event' variant="outline" colorScheme="green" onClick={onOpen}>
       Create Event {<AddIcon />}
     </Button>
 
