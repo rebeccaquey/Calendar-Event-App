@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import axios from 'axios';
-import { ChakraProvider } from '@chakra-ui/react';
+import {
+  ChakraProvider,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel
+} from '@chakra-ui/react';
 import moment from 'moment';
 import CalendarView from './CalendarView.jsx';
 import EventView from './EventView';
@@ -340,14 +347,26 @@ function App() {
           handleDeleteAllEventInvites={handleDeleteAllEventInvites}
         />
         {/* default can be calendar view, but on click, change to event view */}
-        <CalendarView
-          userInviteData={userInviteData}
-          openEditEvent={openEditEvent}
-        />
-        <EventView
-          userInviteData={userInviteData}
-          openEditEvent={openEditEvent}
-        />
+        <Tabs variant='enclosed'>
+          <TabList>
+            <Tab>Calendar</Tab>
+            <Tab>Event</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <CalendarView
+                userInviteData={userInviteData}
+                openEditEvent={openEditEvent}
+              />
+            </TabPanel>
+            <TabPanel>
+              <EventView
+                userInviteData={userInviteData}
+                openEditEvent={openEditEvent}
+              />
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
       </div>
     </ChakraProvider>
   )
