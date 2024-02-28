@@ -15,12 +15,16 @@ function App() {
   const [userInviteData, setUserInviteData] = useState();
   const [eventData, setEventData] = useState();
   const [inviteData, setInviteData] = useState();
-  const [eventInviteData, setEventInviteData] = useState();
+  const [eventInviteData, setEventInviteData] = useState([]);
+  const [originalInviteeInfo, setOriginalInviteeInfo] = useState({});
+  const [updatedInviteeInfo, setUpdatedInviteeInfo] = useState({});
   const [isLoaded, setIsLoaded] = useState(false);
   const [numOfEvents, setNumOfEvents] = useState();
   const [numOfInvites, setNumOfInvites] = useState();
   const [editedEvent, setEditedEvent] = useState({});
-  const [isEditFormOpen, setIsEditFormOpen] = useState(false);
+  const [isEditEventOpen, setIsEditEventOpen] = useState(false);
+  const [inviteesEdited, setInviteesEdited] = useState(false);
+  const [isEventEdited, setIsEventEdited] = useState(false);
 
   const getUsers = () => {
     axios.get('http://localhost:3003/users')
@@ -71,8 +75,7 @@ function App() {
     handleDeleteAllEventInvites(eventId);
   }
 
-  const handleEditEvent = (eventId, eventDetails) => {
-    //event details should be all of the event details.. make sure to send that! *****
+  const handleEditEvent = (eventId, eventDetails, inviteeInfo) => {
     axios.patch(`http://localhost:3003/events/${eventId}`, {eventDetails})
     .then(result => {
       console.log('Successful Patch request: ', result);
@@ -82,30 +85,46 @@ function App() {
     })
     .then(setIsLoaded(false));
 
-    //all invites should change to 'Awaiting'
-    handleEditAllInvites(eventId);
-    //this changes invite response for current user to be 'yes'
-    handleEditInvite(currentUser, eventId, 'Yes');
-  }
+    //if invitees were edited:
+    if (inviteesEdited) {
+      for (let userId in inviteeInfo) {
+        const response = inviteeInfo[userId][1];
+        let nextInviteId = numOfInvites + 1;
+        if (response === 'Added') {
+          handleAddInvite(userId, eventId, nextInviteId);
+        } else if (response === 'Deleted') {
+          handleDeleteInvite(userId, eventId);
+        // } else {
+          //if we allow users to respond:
+          // handleEditInvite(userId, eventId, response);
+        }
 
+        if (isEventEdited) {
+          handleEditInvite(userId, eventId, 'Awaiting');
+        }
+      }
+      setInviteesEdited(false);
 
-  const openEditForm = (e) => {
-    console.log('openEditForm', e);
+      //invitees not edited, but event was edited!
+    }  else if (isEventEdited) {
+      //all invites should change to 'Awaiting'
+      handleEditAllInvites(eventId);
+      //this changes invite response for current user to be 'yes'
+      handleEditInvite(currentUser, eventId, 'Yes');
+      setIsEventEdited(false);
+    }
+
+    setOriginalInviteeInfo(inviteeInfo);
     setEditedEvent({
-      event_id: e.event.eventId,
-      event_name: e.event.title,
-      event_description: e.event.description,
-      event_start: e.event.startStr,
-      event_length: e.event.length,
-      event_location: e.event.location,
-      event_owner: e.event.owner,
-      last_edited: moment().format()
+      id: eventId,
+      name: eventDetails.name,
+      description: eventDetails.description,
+      start: eventDetails.start,
+      length: eventDetails.length,
+      location: eventDetails.location,
+      owner: eventDetails.owner,
+      last_edited: eventDetails.last_edited
     })
-    setIsEditFormOpen(true);
-  }
-
-  const closeEditForm = () => {
-    setIsEditFormOpen(false);
   }
 
   const handleAddEvent = (name, desc, location, start, length, inviteeNames, inviteeIds) => {
@@ -124,7 +143,7 @@ function App() {
     axios.post(`http://localhost:3003/events`, data)
     .then(result => {
       console.log('Successful Post request: ', result);
-          //send to current user, and all the invitees
+      //send to current user, and all the invitees
       let nextInviteId = numOfInvites + 1
       handleAddInvite(currentUser, numOfEvents + 1, nextInviteId);
       inviteeIds.forEach(userId => {
@@ -160,14 +179,20 @@ function App() {
     });
   }
 
-  //this isnt doing anything right now... what does this post get? ****
   const getEventInvites = (eventId) => {
-    console.log('event', eventId);
     axios.get(`http://localhost:3003/invites/events/${eventId}`)
       .then(({data}) => {
-        console.log('event test', data);
         setEventInviteData(data);
-        // setEventData(data);
+        const eventInviteeResponses = {};
+        for (let i = 0; i < data.length; i++) {
+          const invite = data[i];
+          if (invite.user_id !== currentUser) {
+            const fullName = `${invite.first_name} ${invite.last_name}`;
+            eventInviteeResponses[invite.user_id] = [fullName, invite.response]
+          }
+        }
+        setOriginalInviteeInfo(eventInviteeResponses);
+        setUpdatedInviteeInfo(Object.assign({}, eventInviteeResponses));
       })
       .catch(err => {
         console.log('Get request error: ', err)
@@ -218,7 +243,6 @@ function App() {
   }
 
   const handleEditInvite = (userId, eventId, response) => {
-    //response should be sent in the body -- check for this
     axios.patch(`http://localhost:3003/invites/${userId}/${eventId}`, {response})
     .then(result => {
       console.log('Successful Patch request: ', result);
@@ -253,6 +277,24 @@ function App() {
     getUserInvites(userId);
   }
 
+  const openEditEvent = (e) => {
+    setEditedEvent({
+      id: e.event.extendedProps.eventId,
+      name: e.event.title,
+      description: e.event.extendedProps.description,
+      start: e.event.startStr,
+      length: e.event.extendedProps.length,
+      location: e.event.extendedProps.location,
+      owner: e.event.extendedProps.owner,
+      last_edited: e.event.extendedProps.lastEdited
+    })
+    setIsEditEventOpen(true);
+  }
+
+  const closeEditEvent = () => {
+    setIsEditEventOpen(false);
+  }
+
   useEffect(() => {
     getEvents();
     getUsers();
@@ -277,36 +319,41 @@ function App() {
           </span>
         </header>
         <CreateEvent
-              handleAddEvent={handleAddEvent}
-              userData={userData}
-              currentUser={currentUser}
-            />
-        <EditEvent
-          showEditForm={isEditFormOpen}
-          setEditedEvent={setEditedEvent}
-          closeEditForm={closeEditForm}
-        />
-        {/* default can be calendar view, but on click, change to event view */}
-        <CalendarView
-          eventData={eventData}
-          getEventInvites={getEventInvites}
-          userInviteData={userInviteData}
-        />
-        <EventView
-          eventData={eventData}
-          getEventInvites={getEventInvites}
-          // userData={userData}
-          // getUserInvites={getUserInvites}
+          handleAddEvent={handleAddEvent}
           userData={userData}
           currentUser={currentUser}
-          eventInviteData={eventInviteData}
-          userInviteData={userInviteData}
+            />
+        <EditEvent
+          showEditEvent={isEditEventOpen}
+          editedEvent={editedEvent}
+          setEditedEvent={setEditedEvent}
+          closeEditEvent={closeEditEvent}
           handleEditEvent={handleEditEvent}
+          userData={userData}
+          currentUser={currentUser}
+          getEventInvites={getEventInvites}
+          eventInviteData={eventInviteData}
+          setInviteesEdited={setInviteesEdited}
+          setUpdatedInviteeInfo={setUpdatedInviteeInfo}
+          updatedInviteeInfo={updatedInviteeInfo}
+          setOriginalInviteeInfo={setOriginalInviteeInfo}
+          originalInviteeInfo={originalInviteeInfo}
+          setIsEventEdited={setIsEventEdited}
+
+
           handleDeleteEvent={handleDeleteEvent}
           handleDeleteInvite={handleDeleteInvite}
           handleDeleteAllEventInvites={handleDeleteAllEventInvites}
           handleEditAllInvites={handleEditAllInvites}
-          openEditForm={openEditForm}
+        />
+        {/* default can be calendar view, but on click, change to event view */}
+        <CalendarView
+          userInviteData={userInviteData}
+          openEditEvent={openEditEvent}
+        />
+        <EventView
+          userInviteData={userInviteData}
+          openEditEvent={openEditEvent}
         />
       </div>
     </ChakraProvider>
