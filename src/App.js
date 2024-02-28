@@ -311,12 +311,12 @@ function App() {
     <ChakraProvider>
       <div className="App">
         <header className="App-header">
-          <span>
-            <div>
-              EVENTS
-            </div>
-            {' '}
+          <span className='title'>
+            CALENDAR EVENTS
+          </span>
+          <span className='menu'>
             <UsersDropdownMenu
+              className='dropdown'
               userData={userData}
               currentUser={currentUser}
               handleSwitchUser={handleSwitchUser}
@@ -327,7 +327,7 @@ function App() {
           handleAddEvent={handleAddEvent}
           userData={userData}
           currentUser={currentUser}
-            />
+        />
         <EditEvent
           showEditEvent={isEditEventOpen}
           editedEvent={editedEvent}
@@ -346,8 +346,7 @@ function App() {
           setIsEventEdited={setIsEventEdited}
           handleDeleteAllEventInvites={handleDeleteAllEventInvites}
         />
-        {/* default can be calendar view, but on click, change to event view */}
-        <Tabs variant='enclosed'>
+        <Tabs isLazy className='calendar-events' variant='enclosed' colorScheme='green'>
           <TabList>
             <Tab>Calendar</Tab>
             <Tab>Event</Tab>
