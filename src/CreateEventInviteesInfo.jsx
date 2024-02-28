@@ -7,7 +7,7 @@ import {
   MenuList,
   Button
 } from '@chakra-ui/react';
-import { ChevronDownIcon } from '@chakra-ui/icons';
+import { ChevronUpIcon } from '@chakra-ui/icons';
 import CreateEventInvitee from './CreateEventInvitee';
 
 const CreateEventInviteesInfo = (props) => {
@@ -20,9 +20,9 @@ const CreateEventInviteesInfo = (props) => {
       readOnly
     />
     <Menu>
-      <MenuButton 
+      <MenuButton
         as={Button}
-        rightIcon={<ChevronDownIcon />}
+        rightIcon={<ChevronUpIcon />}
         variant="outline"
       >
         Add Users
