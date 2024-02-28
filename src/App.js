@@ -19,8 +19,8 @@ function App() {
   const [originalInviteeInfo, setOriginalInviteeInfo] = useState({});
   const [updatedInviteeInfo, setUpdatedInviteeInfo] = useState({});
   const [isLoaded, setIsLoaded] = useState(false);
-  const [numOfEvents, setNumOfEvents] = useState();
-  const [numOfInvites, setNumOfInvites] = useState();
+  const [latestEventId, setLatestEventId] = useState();
+  const [latestInviteId, setLatestInviteId] = useState();
   const [editedEvent, setEditedEvent] = useState({});
   const [isEditEventOpen, setIsEditEventOpen] = useState(false);
   const [inviteesEdited, setInviteesEdited] = useState(false);
@@ -41,7 +41,7 @@ function App() {
     axios.get('http://localhost:3003/events')
       .then(({data}) => {
         setEventData(data);
-        setNumOfEvents(data.length);
+        setLatestEventId(data[data.length-1].id);
         setIsLoaded(true);
       })
       .catch(err => {
@@ -61,7 +61,7 @@ function App() {
   //   });
   // }
 
-  //deletes the event if the owner clicks delete button ***
+  //deletes the event after all event invites are deleted
   const handleDeleteEvent = (eventId) => {
     axios.delete(`http://localhost:3003/events/${eventId}`)
     .then(result => {
@@ -71,8 +71,6 @@ function App() {
       console.log('Delete request error: ', err);
     })
     .then(setIsLoaded(false));
-
-    handleDeleteAllEventInvites(eventId);
   }
 
   const handleEditEvent = (eventId, eventDetails, inviteeInfo) => {
@@ -87,20 +85,19 @@ function App() {
 
     //if invitees were edited:
     if (inviteesEdited) {
+      let nextInviteId = latestInviteId + 1;
       for (let userId in inviteeInfo) {
         const response = inviteeInfo[userId][1];
-        let nextInviteId = numOfInvites + 1;
         if (response === 'Added') {
           handleAddInvite(userId, eventId, nextInviteId);
+          nextInviteId++;
         } else if (response === 'Deleted') {
           handleDeleteInvite(userId, eventId);
+        } else if (isEventEdited) {
+          handleEditInvite(userId, eventId, 'Awaiting');
         // } else {
           //if we allow users to respond:
           // handleEditInvite(userId, eventId, response);
-        }
-
-        if (isEventEdited) {
-          handleEditInvite(userId, eventId, 'Awaiting');
         }
       }
       setInviteesEdited(false);
@@ -129,7 +126,7 @@ function App() {
 
   const handleAddEvent = (name, desc, location, start, length, inviteeNames, inviteeIds) => {
     let data = [{
-      event_id: numOfEvents + 1,
+      event_id: latestEventId + 1,
       event_name: name,
       event_description: desc,
       event_start: start,
@@ -144,11 +141,11 @@ function App() {
     .then(result => {
       console.log('Successful Post request: ', result);
       //send to current user, and all the invitees
-      let nextInviteId = numOfInvites + 1
-      handleAddInvite(currentUser, numOfEvents + 1, nextInviteId);
+      let nextInviteId = latestInviteId + 1
+      handleAddInvite(currentUser, latestEventId + 1, nextInviteId);
       inviteeIds.forEach(userId => {
         nextInviteId++;
-        handleAddInvite(userId, numOfEvents + 1, nextInviteId);
+        handleAddInvite(userId, latestEventId + 1, nextInviteId);
       })
     })
     .catch(err => {
@@ -161,7 +158,7 @@ function App() {
     axios.get('http://localhost:3003/invites')
       .then(({data}) => {
         setInviteData(data);
-        setNumOfInvites(data.length);
+        setLatestInviteId(data[data.length-1].id);
         setIsLoaded(true);
       })
       .catch(err => {
@@ -199,11 +196,12 @@ function App() {
     });
   }
 
-  //if owner deletes the event -- we need to delete all event invites
+  //if owner deletes the event, we need to delete all event invites and then delete the actual event
   const handleDeleteAllEventInvites = (eventId) => {
     axios.delete(`http://localhost:3003/invites/${eventId}`)
     .then(result => {
       console.log('Successful Delete request: ', result);
+      handleDeleteEvent(eventId);
     })
     .catch(err => {
       console.log('Delete request error: ', err);
@@ -261,7 +259,7 @@ function App() {
     axios.post(`http://localhost:3003/invites`, data)
     .then(result => {
       console.log('Successful Post request: ', result);
-      setNumOfInvites(inviteId);
+      setLatestInviteId(inviteId);
       //mark current user's response as yes
       if (userId === currentUser) {
         handleEditInvite(currentUser, eventId, 'Yes');
@@ -339,12 +337,7 @@ function App() {
           setOriginalInviteeInfo={setOriginalInviteeInfo}
           originalInviteeInfo={originalInviteeInfo}
           setIsEventEdited={setIsEventEdited}
-
-
-          handleDeleteEvent={handleDeleteEvent}
-          handleDeleteInvite={handleDeleteInvite}
           handleDeleteAllEventInvites={handleDeleteAllEventInvites}
-          handleEditAllInvites={handleEditAllInvites}
         />
         {/* default can be calendar view, but on click, change to event view */}
         <CalendarView
