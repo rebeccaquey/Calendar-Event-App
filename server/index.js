@@ -95,10 +95,9 @@ app.delete('/events/:eventId', (req, res) => {
 
 //update route for an event
 app.patch('/events/:eventId', (req, res) => {
-  // console.log(req.body, req.params.eventId)
-
-  const lastEdited = moment(req.body.lastEdited).format('lll');
-  database.query(`update events set event_name = '${req.body.event_name}', event_description = '${req.body.event_description}', event_start = '${req.body.event_start}', event_length = '${req.body.event_length}', event_location = '${req.body.event_location}', event_owner = '${req.body.event_owner}', last_edited = '${lastEdited}' where id = ${req.params.eventId}`, (err, results) => {
+  console.log(req.body.eventDetails)
+  const lastEdited = moment(req.body.eventDetails.last_edited).format('lll');
+  database.query(`update events set event_name = '${req.body.eventDetails.name}', event_description = '${req.body.eventDetails.description}', event_start = '${req.body.eventDetails.start}', event_length = '${req.body.eventDetails.length}', event_location = '${req.body.eventDetails.location}', event_owner = '${req.body.eventDetails.owner}', last_edited = '${lastEdited}' where id = ${req.params.eventId}`, (err, results) => {
     if (err) {
       res.status(404).send(err);
     } else {
