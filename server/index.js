@@ -79,7 +79,7 @@ app.post('/notifications/:eventId/:userId', (req, res) => {
       const eventName = results[0].event_name;
       const eventStart = results[0].event_start;
 
-      const message = `Notification: ${eventName} @ ${eventStart}`;
+      const message = `Notification: ${eventName} @ ${eventStart} ${userEmail}`;
 
       const currentTime = new Date();
       const thirtyMinBefore = new Date(eventStart - thirtyMinInMs);
