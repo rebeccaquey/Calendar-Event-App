@@ -271,6 +271,14 @@ function App() {
       if (userId === currentUser) {
         handleEditInvite(currentUser, eventId, 'Yes');
       }
+      //create notification for the event for each user
+      axios.post(`http://localhost:3003/notifications/${eventId}/${userId}`, data)
+      .then(result => {
+        console.log('Succesfully created notification: ', result);
+      })
+      .catch(err => {
+        console.log('Post request error for creating notification: ', err);
+      })
     })
     .catch(err => {
       console.log('Post request error: ', err);
