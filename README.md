@@ -10,15 +10,24 @@ This was built with React on the client side. Backend is using Express and MySQL
   * This will create the database & tables
 * `npm run seed`
   * This will load the seed data into the database
+* Create 'twilio.js' file in the server directory.
+  * This should be a file that includes the following:
+    * const accountSid = 'INSERT ACCOUNT SID HERE';
+    * const authToken = 'INSERT AUTH TOKEN HERE';
+    * const twilioPhoneNumber = 'INSERT TWILIO PHONE NUMBER HERE';
+    * const myPhoneNumber = 'INSERT YOUR PHONE NUMBER HERE';
+
+    * module.exports = { accountSid, authToken, twilioPhoneNumber, myPhoneNumber }
 
 ### Additional Features
 
-* `Click on the name on the right side of the header to see a dropdown list of Users. Can switch users to see the events that user is invited to.`
-* `Click on 'Create Event' button to add new event.`
-* `Click on the event to see more details, as well as edit or delete the event.`
-* `Use arrows to change months and see events in that month.`
-* `Toggle between tabs to see Calendar view or Event view.`
-* `Click on 'today' to move back to the current date.`
+* Click on the name on the right side of the header to see a dropdown list of Users. Can switch users to see the events that user is invited to.
+* Click on 'Create Event' button to add new event.
+* Click on the event to see more details, as well as edit or delete the event.
+* Use arrows to change months and see events in that month.
+* Toggle between tabs to see Calendar view or Event view.
+* Click on 'today' to move back to the current date.
+* Sends Twilio SMS message as a notification for the event 30 minutes before the event. This currently sends a message to your phone number for each user invited, but can easily be updated to send to the user's emails, or different phone numbers, etc.
 
 ## Available Scripts
 
