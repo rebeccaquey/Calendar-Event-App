@@ -5,9 +5,13 @@ This was built with React on the client side. Backend is using Express and MySQL
 
 * `npm install`
 * `npm start`
-* `npm run server-dev`
 * `mysql -u root < server/db/schema.sql`
   * This will create the database & tables
+  * If you run into this error: `MySQL 8.0 - Client does not support authentication protocol requested by server; consider upgrading MySQL client`
+    * Execute the following query in MYSQL Workbench:
+      `ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';`
+      Where root as your user localhost as your URL and password as your password
+      Then run this query to refresh privileges: `flush privileges;`
 * `npm run seed`
   * This will load the seed data into the database
 * Create 'twilio.js' file in the server directory.
@@ -18,6 +22,7 @@ This was built with React on the client side. Backend is using Express and MySQL
     * const myPhoneNumber = 'INSERT YOUR PHONE NUMBER HERE';
 
     * module.exports = { accountSid, authToken, twilioPhoneNumber, myPhoneNumber }
+* `npm run server-dev`
 
 ### Additional Features
 
